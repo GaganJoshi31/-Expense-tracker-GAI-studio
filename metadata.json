@@ -1,0 +1,5 @@
+{
+  "name": "Copy of Intelligent Expense Tracker",
+  "description": "A progressive web app to track and analyze your expenses by uploading bank statements. All data is processed and stored locally on your device.",
+  "requestFramePermissions": []
+}
