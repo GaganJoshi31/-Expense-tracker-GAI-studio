@@ -32,7 +32,14 @@ const getUsers = (): Record<string, StoredUser> => {
     const usersData = storage.getItem('users');
     if (usersData) {
         try {
-            return JSON.parse(usersData);
+            const parsedData = JSON.parse(usersData);
+            // FIX: Ensure the parsed data is a non-null object to prevent runtime errors.
+            // This handles edge cases where localStorage might contain valid JSON like "null".
+            if (parsedData && typeof parsedData === 'object') {
+                return parsedData;
+            }
+            console.warn("User data in storage was not a valid object, resetting.", parsedData);
+            storage.removeItem('users');
         } catch (error) {
             console.error("Failed to parse user data from storage, resetting.", error);
             // If parsing fails, remove the corrupted item and fall through to create the default.
