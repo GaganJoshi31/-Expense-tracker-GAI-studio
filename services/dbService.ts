@@ -44,25 +44,35 @@ export const initDB = (): Promise<IDBDatabase> => {
 
         request.onupgradeneeded = (event) => {
             const tempDb = (event.target as IDBOpenDBRequest).result;
+            const transaction = (event.target as IDBOpenDBRequest).transaction;
+            if (!transaction) {
+                console.error("Upgrade transaction is not available.");
+                return;
+            }
             
-            // FIX: Refactored createStore to accept an options object for more flexibility (e.g., autoIncrement).
-            const createStore = (storeName: string, options: IDBObjectStoreParameters, indexes?: { name: string, keyPath: string, options?: IDBIndexParameters }[]) => {
+            const createOrUpdateStore = (storeName: string, options: IDBObjectStoreParameters, indexes?: { name: string, keyPath: string, options?: IDBIndexParameters }[]) => {
+                let store: IDBObjectStore;
                 if (!tempDb.objectStoreNames.contains(storeName)) {
-                    const store = tempDb.createObjectStore(storeName, options);
-                    indexes?.forEach(idx => store.createIndex(idx.name, idx.keyPath, idx.options));
+                    store = tempDb.createObjectStore(storeName, options);
+                } else {
+                    store = transaction.objectStore(storeName);
                 }
+
+                indexes?.forEach(idx => {
+                    if (!store.indexNames.contains(idx.name)) {
+                        store.createIndex(idx.name, idx.keyPath, idx.options);
+                    }
+                });
             };
             
-            // FIX: Updated calls to use the new options object format.
-            createStore(TRANSACTIONS_STORE, { keyPath: 'id' }, [
+            createOrUpdateStore(TRANSACTIONS_STORE, { keyPath: 'id' }, [
                 { name: 'date', keyPath: 'date' },
                 { name: 'category', keyPath: 'category' }
             ]);
-            createStore(TAX_TRANSACTIONS_STORE, { keyPath: 'id' });
-            createStore(CUSTOM_RULES_STORE, { keyPath: 'description' });
-            createStore(CATEGORIES_STORE, { keyPath: 'name' });
-            // FIX: Correctly create the logs store with auto-incrementing IDs.
-            createStore(LOGS_STORE, { keyPath: 'id', autoIncrement: true });
+            createOrUpdateStore(TAX_TRANSACTIONS_STORE, { keyPath: 'id' });
+            createOrUpdateStore(CUSTOM_RULES_STORE, { keyPath: 'description' });
+            createOrUpdateStore(CATEGORIES_STORE, { keyPath: 'name' });
+            createOrUpdateStore(LOGS_STORE, { keyPath: 'id', autoIncrement: true });
         };
     });
 };

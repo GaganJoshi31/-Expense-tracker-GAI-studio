@@ -19,6 +19,7 @@ const formatCurrency = (amount: number | null) => {
     return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
+// Moved useLocalStorage hook to the top-level scope to follow the Rules of Hooks.
 const useLocalStorage = <T,>(key: string, initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] => {
     const [storedValue, setStoredValue] = useState<T>(() => {
         try {
