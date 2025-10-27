@@ -4,20 +4,41 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#14b8a6" />
     <title>Intelligent Expense Tracker</title>
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Babel Standalone for in-browser TSX/React transpilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- PDF.js: Required for PDF parsing -->
     <script>
-      // pdf.js worker configuration
       window.pdfjsWorker = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    
+    <!-- PapaParse: Required for CSV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/paparse.min.js"></script>
+    
+    <!-- SheetJS (XLSX): Required for Excel parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- Chart.js: For data visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- PDF Generation Utilities -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <script>
       (function() {
-        const theme = localStorage.getItem('themeMode'); // Corrected key to 'themeMode'
+        const theme = localStorage.getItem('themeMode');
         if (theme === 'dark') {
           document.documentElement.classList.add('dark');
         } else {
@@ -36,8 +57,8 @@
 }
 </script>
 </head>
-  <body class="bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+  <body class="bg-slate-100 dark:bg-slate-900 transition-colors duration-300">
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <script type="text/babel" data-type="module" data-presets="react,typescript" src="/index.tsx"></script>
   </body>
 </html>

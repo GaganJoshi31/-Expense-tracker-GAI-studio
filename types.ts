@@ -10,6 +10,8 @@ export interface Transaction {
     sourceFile: string;
 }
 
+export type UncategorizedTransaction = Omit<Transaction, 'id' | 'category' | 'sourceFile'>;
+
 export interface CategoryRule {
     category: Category;
     keywords: string[];
@@ -31,7 +33,7 @@ export interface User {
     firstName: string;
     lastName: string;
     gender: string;
-    purpose: string;
+    purpose:string;
     role: 'user' | 'admin';
     phone?: string;
     themeColor?: ThemeColor;
@@ -46,3 +48,24 @@ export interface LogEntry {
     message: string;
     details?: any;
 }
+
+// Types for the enhanced file parser
+export type FileParsingStatus = 'parsing' | 'password' | 'success' | 'error';
+
+export interface FileStatus {
+    name: string;
+    status: FileParsingStatus;
+    message: string;
+}
+
+export interface ParsingError {
+    fileName: string;
+    error: string;
+}
+
+export interface ParsingResult {
+    transactions: Transaction[];
+    errors: ParsingError[];
+}
+
+export type UpdateFileStatusCallback = (fileName: string, status: FileParsingStatus, message: string) => void;

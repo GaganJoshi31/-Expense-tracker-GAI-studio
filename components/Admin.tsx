@@ -81,13 +81,30 @@ const TrainingAnalysis: React.FC<{ themeColor: ThemeColor }> = ({ themeColor }) 
     const stats = useMemo(() => {
         const total = rules.length;
         const ai = rules.filter(r => r.source === 'ai_suggestion').length;
-        const manual = total - ai; // Assumes any rule not from AI is manual
-        return { total, ai, manual, aiPercentage: total > 0 ? (ai / total) * 100 : 0 };
+        const manual = total - ai;
+        const aiPercentage = total > 0 ? (ai / total) * 100 : 0;
+        const manualPercentage = 100 - aiPercentage;
+        return { 
+            total, 
+            ai, 
+            manual, 
+            aiPercentage, 
+            manualPercentage,
+            aiPercentageFixed: aiPercentage.toFixed(1),
+            manualPercentageFixed: manualPercentage.toFixed(1)
+        };
     }, [rules]);
 
     if (isLoading) {
         return <div className="p-6 text-center">Loading analysis data...</div>
     }
+    
+    const aiBarStyle = { width: `${stats.aiPercentage}%` };
+    const manualBarStyle = { width: `${stats.manualPercentage}%` };
+    const aiBarTitle = `AI: ${stats.aiPercentageFixed}%`;
+    const manualBarTitle = `Manual: ${stats.manualPercentageFixed}%`;
+    const aiBarClasses = `bg-${themeColor}-500 h-6 flex items-center justify-center text-white text-sm font-semibold`;
+    const manualBarClasses = "bg-sky-500 h-6 flex items-center justify-center text-white text-sm font-semibold";
 
     return (
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
@@ -103,21 +120,21 @@ const TrainingAnalysis: React.FC<{ themeColor: ThemeColor }> = ({ themeColor }) 
                 </div>
                 <div className="p-4 bg-sky-100 dark:bg-sky-900/50 rounded-lg text-center">
                     <p className="text-sm text-sky-800 dark:text-sky-300">Created Manually</p>
-                    <p className="text-3xl font-bold text-sky-900 dark:text-sky-200`}>{stats.manual}</p>
+                    <p className="text-3xl font-bold text-sky-900 dark:text-sky-200">{stats.manual}</p>
                 </div>
             </div>
             <div>
                 <h3 className="text-lg font-semibold mb-2">Rule Source Breakdown</h3>
                 <div className="w-full bg-sky-200 dark:bg-sky-800 rounded-full h-6 flex overflow-hidden">
-                    <div className={`bg-${themeColor}-500 h-6 flex items-center justify-center text-white text-sm font-semibold`} style={{ width: `${stats.aiPercentage}%` }} title={`AI: ${stats.aiPercentage.toFixed(1)}%`}>
+                    <div className={aiBarClasses} style={aiBarStyle} title={aiBarTitle}>
                        {stats.ai > 0 && <span>AI</span>}
                     </div>
-                     <div className="bg-sky-500 h-6 flex items-center justify-center text-white text-sm font-semibold" style={{ width: `${100-stats.aiPercentage}%`}} title={`Manual: ${(100-stats.aiPercentage).toFixed(1)}%`}>
+                     <div className={manualBarClasses} style={manualBarStyle} title={manualBarTitle}>
                        {stats.manual > 0 && <span>Manual</span>}
                     </div>
                 </div>
                 <p className="text-center mt-2 text-slate-500">
-                    <strong>{stats.aiPercentage.toFixed(1)}%</strong> of your automated categorization rules came from AI suggestions.
+                    <strong>{stats.aiPercentageFixed}%</strong> of your automated categorization rules came from AI suggestions.
                 </p>
             </div>
         </div>
