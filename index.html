@@ -38,11 +38,15 @@
 
     <script>
       (function() {
-        const theme = localStorage.getItem('themeMode');
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
+        try {
+          const theme = localStorage.getItem('themeMode');
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {
+            console.error('Could not access localStorage to set theme.', e);
         }
       })();
     </script>

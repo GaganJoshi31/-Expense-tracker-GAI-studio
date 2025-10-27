@@ -30,6 +30,15 @@ declare const Papa: any;
 type View = 'dashboard' | 'analysis' | 'tax' | 'admin' | 'profile';
 type ThemeMode = 'light' | 'dark';
 
+const getInitialTheme = (): ThemeMode => {
+    try {
+        return (localStorage.getItem('themeMode') as ThemeMode) || 'light';
+    } catch (e) {
+        console.error('Could not access localStorage for theme, defaulting to light mode.', e);
+        return 'light';
+    }
+};
+
 const App: React.FC = () => {
     const [currentUser, setCurrentUser] = useState<User | null>(() => authService.getCurrentUserDetails());
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -49,7 +58,7 @@ const App: React.FC = () => {
     const [isAiModalOpen, setIsAiModalOpen] = useState(false);
     const [view, setView] = useState<View>('dashboard');
     const [allCategories, setAllCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
-    const [themeMode, setThemeMode] = useState<ThemeMode>(() => (localStorage.getItem('themeMode') as ThemeMode) || 'light');
+    const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme);
     const [themeColor, setThemeColor] = useState<ThemeColor>(currentUser?.themeColor || 'teal');
     const [fileStatuses, setFileStatuses] = useState<FileStatus[]>([]);
 
@@ -59,7 +68,11 @@ const App: React.FC = () => {
 
     useEffect(() => {
         document.documentElement.classList.toggle('dark', themeMode === 'dark');
-        localStorage.setItem('themeMode', themeMode);
+        try {
+            localStorage.setItem('themeMode', themeMode);
+        } catch (e) {
+            logService.logWarning('Could not persist theme setting to localStorage.', e);
+        }
     }, [themeMode]);
 
     const toggleTheme = () => setThemeMode(prev => (prev === 'light' ? 'dark' : 'light'));

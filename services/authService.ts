@@ -4,16 +4,39 @@ import type { User } from '../types';
 
 type StoredUser = Omit<User, 'email'> & { password: string };
 
+// Storage can be either localStorage or a transient in-memory object.
+let storage: Storage;
+const memoryStore: Record<string, string> = {};
+
+try {
+    // Check if localStorage is available and writable
+    const testKey = '__test_storage__';
+    window.localStorage.setItem(testKey, testKey);
+    window.localStorage.removeItem(testKey);
+    storage = window.localStorage;
+} catch (e) {
+    console.warn("localStorage is not available, falling back to in-memory storage. Data will not be persisted.");
+    storage = {
+        getItem: (key: string) => memoryStore[key] || null,
+        setItem: (key: string, value: string) => { memoryStore[key] = value; },
+        removeItem: (key: string) => { delete memoryStore[key]; },
+        clear: () => { Object.keys(memoryStore).forEach(key => delete memoryStore[key]); },
+        key: (index: number) => Object.keys(memoryStore)[index] || null,
+        length: Object.keys(memoryStore).length,
+    };
+}
+
+
 // Helper to get users from localStorage
 const getUsers = (): Record<string, StoredUser> => {
-    const usersData = localStorage.getItem('users');
+    const usersData = storage.getItem('users');
     if (usersData) {
         try {
             return JSON.parse(usersData);
         } catch (error) {
-            console.error("Failed to parse user data from localStorage, resetting.", error);
+            console.error("Failed to parse user data from storage, resetting.", error);
             // If parsing fails, remove the corrupted item and fall through to create the default.
-            localStorage.removeItem('users');
+            storage.removeItem('users');
         }
     }
     
@@ -30,13 +53,13 @@ const getUsers = (): Record<string, StoredUser> => {
         }
     };
     const defaultUsersStr = JSON.stringify(defaultAdmin);
-    localStorage.setItem('users', defaultUsersStr);
+    storage.setItem('users', defaultUsersStr);
     return defaultAdmin;
 };
 
 // Helper to save users to localStorage
 const saveUsers = (users: Record<string, StoredUser>): void => {
-    localStorage.setItem('users', JSON.stringify(users));
+    storage.setItem('users', JSON.stringify(users));
 };
 
 export const signup = async (
@@ -68,7 +91,7 @@ export const login = async (email: string, password: string): Promise<{ success:
     if (users[email].password !== password) {
         return { success: false, message: 'Incorrect password.' };
     }
-    localStorage.setItem('currentUser', email);
+    storage.setItem('currentUser', email);
     return { success: true, message: 'Login successful.' };
 };
 
@@ -104,17 +127,17 @@ export const loginWithOtp = async (email: string, otp: string): Promise<{ succes
     }
     
     sessionStorage.removeItem('otp');
-    localStorage.setItem('currentUser', email);
+    storage.setItem('currentUser', email);
     return { success: true, message: 'Login successful.' };
 };
 
 
 export const logout = (): void => {
-    localStorage.removeItem('currentUser');
+    storage.removeItem('currentUser');
 };
 
 export const getCurrentUser = (): string | null => {
-    return localStorage.getItem('currentUser');
+    return storage.getItem('currentUser');
 };
 
 export const getCurrentUserDetails = (): User | null => {
