@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, FormEvent } from 'react';
 import type { Category, ThemeColor } from '../types';
 import * as dbService from '../services/dbService';
-import { DEFAULT_CATEGORIES } from '../constants';
+import { DEFAULT_CATEGORIES, THEME_CONFIG } from '../constants';
 
 interface ManageCategoriesModalProps {
     onClose: () => void;
@@ -16,6 +16,7 @@ export const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ on
     const [newCategoryName, setNewCategoryName] = useState('');
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [editingValue, setEditingValue] = useState('');
+    const theme = THEME_CONFIG[themeColor];
 
     const fetchCategories = useCallback(async () => {
         setIsLoading(true);
@@ -104,9 +105,9 @@ export const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ on
                     <form onSubmit={handleAddCategory} className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg mb-6 flex items-end gap-4">
                         <div className="flex-grow">
                             <label htmlFor="newCategory" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">New Category Name</label>
-                            <input type="text" id="newCategory" value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} placeholder="e.g., Groceries" required className={`w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} />
+                            <input type="text" id="newCategory" value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} placeholder="e.g., Groceries" required className={`w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none ${theme.focusRing500} ${theme.focusBorder500}`} />
                         </div>
-                        <button type="submit" className={`py-2 px-4 rounded-md bg-${themeColor}-600 hover:bg-${themeColor}-700 text-white font-semibold transition-colors`}>Add</button>
+                        <button type="submit" className={`py-2 px-4 rounded-md ${theme.bg600} ${theme.hoverBg700} text-white font-semibold transition-colors`}>Add</button>
                     </form>
 
                     <h3 className="text-lg font-semibold mb-2">Existing Categories</h3>
@@ -121,7 +122,7 @@ export const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ on
                                         <li key={cat} className="p-3 flex justify-between items-center hover:bg-slate-50 dark:hover:bg-slate-700/50">
                                             {isEditing ? (
                                                 <form onSubmit={handleUpdateCategory} className="flex-grow flex items-center gap-2">
-                                                    <input type="text" value={editingValue} onChange={e => setEditingValue(e.target.value)} className={`flex-grow px-2 py-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} autoFocus />
+                                                    <input type="text" value={editingValue} onChange={e => setEditingValue(e.target.value)} className={`flex-grow px-2 py-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none ${theme.focusRing500} ${theme.focusBorder500}`} autoFocus />
                                                     <button type="submit" className="p-2 rounded-full hover:bg-green-100 dark:hover:bg-green-900/50" aria-label="Update category"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg></button>
                                                     <button type="button" onClick={handleCancelEdit} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-600" aria-label="Cancel edit"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-500" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg></button>
                                                 </form>

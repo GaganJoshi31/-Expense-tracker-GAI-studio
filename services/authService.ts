@@ -6,24 +6,32 @@ type StoredUser = Omit<User, 'email'> & { password: string };
 
 // Helper to get users from localStorage
 const getUsers = (): Record<string, StoredUser> => {
-    let usersData = localStorage.getItem('users');
-    if (!usersData) {
-        // If no users exist, create the default admin user
-        const defaultAdmin: Record<string, StoredUser> = {
-            'admin@expensetracker.com': {
-                password: 'Admin@123',
-                firstName: 'Admin',
-                lastName: 'User',
-                gender: 'Prefer not to say',
-                purpose: 'Application testing and administration',
-                role: 'admin',
-                themeColor: 'indigo'
-            }
-        };
-        usersData = JSON.stringify(defaultAdmin);
-        localStorage.setItem('users', usersData);
+    const usersData = localStorage.getItem('users');
+    if (usersData) {
+        try {
+            return JSON.parse(usersData);
+        } catch (error) {
+            console.error("Failed to parse user data from localStorage, resetting.", error);
+            // If parsing fails, remove the corrupted item and fall through to create the default.
+            localStorage.removeItem('users');
+        }
     }
-    return JSON.parse(usersData);
+    
+    // If no users exist or data was corrupt, create the default admin user
+    const defaultAdmin: Record<string, StoredUser> = {
+        'admin@expensetracker.com': {
+            password: 'Admin@123',
+            firstName: 'Admin',
+            lastName: 'User',
+            gender: 'Prefer not to say',
+            purpose: 'Application testing and administration',
+            role: 'admin',
+            themeColor: 'indigo'
+        }
+    };
+    const defaultUsersStr = JSON.stringify(defaultAdmin);
+    localStorage.setItem('users', defaultUsersStr);
+    return defaultAdmin;
 };
 
 // Helper to save users to localStorage
