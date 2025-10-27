@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import type { ThemeColor, FileStatus } from '../types';
+import { THEME_CONFIG } from '../constants';
 
 interface FileUploadProps {
     onUpload: (files: FileList) => void;
@@ -10,6 +11,7 @@ interface FileUploadProps {
 
 export const FileUpload: React.FC<FileUploadProps> = ({ onUpload, disabled, themeColor, fileStatuses }) => {
     const [isDragging, setIsDragging] = useState(false);
+    const theme = THEME_CONFIG[themeColor];
 
     const handleDragEnter = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -57,8 +59,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUpload, disabled, them
         <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-lg space-y-4">
             <div 
                 className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors duration-200 ease-in-out
-                    ${isDragging ? `border-${themeColor}-500 bg-${themeColor}-50 dark:bg-slate-800/50` : 'border-slate-300 dark:border-slate-600'}
-                    ${disabled ? 'opacity-50 cursor-not-allowed' : `hover:border-${themeColor}-400`}`}
+                    ${isDragging ? `${theme.border500} ${theme.bg50} dark:bg-slate-800/50` : 'border-slate-300 dark:border-slate-600'}
+                    ${disabled ? 'opacity-50 cursor-not-allowed' : `${theme.hoverBorder400}`}`}
                 onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop}
                 aria-disabled={disabled}
             >
@@ -70,7 +72,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUpload, disabled, them
                 <div className="flex flex-col items-center justify-center space-y-4 pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}><path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
                     <p className="text-slate-500 dark:text-slate-400">
-                        <span className={`font-semibold text-${themeColor}-600 dark:text-${themeColor}-400`}>Click to upload</span> or drag and drop
+                        <span className={`font-semibold ${theme.text600} ${theme.darkText400}`}>Click to upload</span> or drag and drop
                     </p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">PDF, CSV, XLSX, or TXT (max 5)</p>
                 </div>

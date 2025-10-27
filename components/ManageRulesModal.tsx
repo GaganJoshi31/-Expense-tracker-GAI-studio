@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, FormEvent } from 'react';
 import type { CustomRule, Category, ThemeColor } from '../types';
 import * as dbService from '../services/dbService';
 import * as logService from '../services/logService';
+import { THEME_CONFIG } from '../constants';
 
 interface ManageRulesModalProps {
     onClose: () => void;
@@ -15,6 +16,7 @@ export const ManageRulesModal: React.FC<ManageRulesModalProps> = ({ onClose, onR
     const [isLoading, setIsLoading] = useState(true);
     const [newRuleDescription, setNewRuleDescription] = useState('');
     const [newRuleCategory, setNewRuleCategory] = useState<Category>(allCategories[0] || '');
+    const theme = THEME_CONFIG[themeColor];
 
     const fetchRules = useCallback(async () => {
         setIsLoading(true);
@@ -71,15 +73,15 @@ export const ManageRulesModal: React.FC<ManageRulesModalProps> = ({ onClose, onR
                     <form onSubmit={handleAddRule} className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg mb-6 flex flex-col md:flex-row items-end gap-4">
                         <div className="flex-grow w-full">
                             <label htmlFor="ruleDesc" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Transaction Description (Exact Match)</label>
-                            <input type="text" id="ruleDesc" value={newRuleDescription} onChange={e => setNewRuleDescription(e.target.value)} placeholder="e.g., ZOMATO" required className={`w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} />
+                            <input type="text" id="ruleDesc" value={newRuleDescription} onChange={e => setNewRuleDescription(e.target.value)} placeholder="e.g., ZOMATO" required className={`w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none ${theme.focusRing500} ${theme.focusBorder500}`} />
                         </div>
                         <div className="w-full md:w-auto">
                             <label htmlFor="ruleCat" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Category</label>
-                            <select id="ruleCat" value={newRuleCategory} onChange={e => setNewRuleCategory(e.target.value)} className={`w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-${themeColor}-500 focus:border-${themeColor}-500`}>
+                            <select id="ruleCat" value={newRuleCategory} onChange={e => setNewRuleCategory(e.target.value)} className={`w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none ${theme.focusRing500} ${theme.focusBorder500}`}>
                                 {allCategories.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                         </div>
-                        <button type="submit" className={`w-full md:w-auto py-2 px-4 rounded-md bg-${themeColor}-600 hover:bg-${themeColor}-700 text-white font-semibold transition-colors`}>Add Rule</button>
+                        <button type="submit" className={`w-full md:w-auto py-2 px-4 rounded-md ${theme.bg600} ${theme.hoverBg700} text-white font-semibold transition-colors`}>Add Rule</button>
                     </form>
 
                     <h3 className="text-lg font-semibold mb-2">Existing Rules</h3>
@@ -90,7 +92,7 @@ export const ManageRulesModal: React.FC<ManageRulesModalProps> = ({ onClose, onR
                                     <li key={rule.description} className="p-3 flex justify-between items-center hover:bg-slate-50 dark:hover:bg-slate-700/50">
                                         <div>
                                             <p className="font-semibold">{rule.description}</p>
-                                            <p className="text-sm text-slate-500">maps to &rarr; <span className={`font-medium text-${themeColor}-600 dark:text-${themeColor}-400`}>{rule.category}</span></p>
+                                            <p className="text-sm text-slate-500">maps to &rarr; <span className={`font-medium ${theme.text600} ${theme.darkText400}`}>{rule.category}</span></p>
                                         </div>
                                          <button onClick={() => handleDeleteRule(rule.description)} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-600" aria-label="Delete rule">
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" /></svg>

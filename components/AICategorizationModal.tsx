@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { Transaction, Category, ThemeColor } from '../types';
 import * as dbService from '../services/dbService';
 import { suggestCategories, CategorizationSuggestion } from '../services/aiService';
+import { THEME_CONFIG } from '../constants';
 
 interface AICategorizationModalProps {
     onClose: () => void;
@@ -16,6 +17,7 @@ export const AICategorizationModal: React.FC<AICategorizationModalProps> = ({ on
     const [isLoading, setIsLoading] = useState(true);
     const [isSuggesting, setIsSuggesting] = useState(false);
     const [error, setError] = useState('');
+    const theme = THEME_CONFIG[themeColor];
 
     useEffect(() => {
         const fetchTransactions = async () => {
@@ -81,7 +83,7 @@ export const AICategorizationModal: React.FC<AICategorizationModalProps> = ({ on
                     <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4">
                         <p className="text-slate-600 dark:text-slate-300">Review transactions in 'Other' categories and use AI to suggest better ones.</p>
                         <button onClick={handleGetSuggestions} disabled={isSuggesting || transactions.length === 0}
-                            className={`bg-${themeColor}-600 hover:bg-${themeColor}-700 text-white font-bold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2`}>
+                            className={`${theme.bg600} ${theme.hoverBg700} text-white font-bold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2`}>
                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
                             <span>{isSuggesting ? 'Thinking...' : 'Get Suggestions'}</span>
                         </button>
@@ -106,7 +108,7 @@ export const AICategorizationModal: React.FC<AICategorizationModalProps> = ({ on
                                             {suggestion ? (
                                                 <div className="text-left md:text-right flex items-center gap-4">
                                                     <div className="flex-grow">
-                                                        <p className={`font-semibold text-${themeColor}-500`}>{suggestion.suggestedCategory}</p>
+                                                        <p className={`font-semibold ${theme.text500}`}>{suggestion.suggestedCategory}</p>
                                                         <p className="text-xs text-slate-400 italic">"{suggestion.reasoning}"</p>
                                                     </div>
                                                     <button onClick={() => handleApplySuggestion(t, suggestion)} className="text-sm bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-2 rounded whitespace-nowrap">

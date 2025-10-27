@@ -1,5 +1,6 @@
 import React from 'react';
 import type { ThemeColor } from '../types';
+import { THEME_CONFIG } from '../constants';
 
 type ThemeMode = 'light' | 'dark';
 
@@ -10,10 +11,11 @@ interface ThemeToggleProps {
 }
 
 export const ThemeToggle: React.FC<ThemeToggleProps> = ({ themeMode, toggleTheme, themeColor }) => {
+  const theme = THEME_CONFIG[themeColor];
   return (
     <button
       onClick={toggleTheme}
-      className={`w-14 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${themeColor}-500`}
+      className={`w-14 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 ${theme.focusRing500}`}
       title={`Switch to ${themeMode === 'light' ? 'dark' : 'light'} mode`}
       aria-pressed={themeMode === 'dark'}
     >

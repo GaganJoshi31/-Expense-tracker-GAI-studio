@@ -1,6 +1,7 @@
 import React, { useState, FormEvent, useEffect } from 'react';
 import type { User, ThemeColor } from '../types';
 import * as authService from '../services/authService';
+import { THEME_CONFIG } from '../constants';
 
 interface ProfileProps {
     user: User;
@@ -17,6 +18,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, onUpdate, themeColor }) 
     });
     const [isSaving, setIsSaving] = useState(false);
     const [message, setMessage] = useState('');
+    const theme = THEME_CONFIG[themeColor];
 
     useEffect(() => {
         setFormData({
@@ -61,6 +63,8 @@ export const Profile: React.FC<ProfileProps> = ({ user, onUpdate, themeColor }) 
         { value: 'indigo', name: 'Indigo', color: 'bg-indigo-500' },
         { value: 'rose', name: 'Rose', color: 'bg-rose-500' },
     ];
+    
+    const inputClasses = `input-field mt-1 ${theme.focusRing500} ${theme.focusBorder500}`;
 
     return (
         <div className="max-w-2xl mx-auto">
@@ -71,11 +75,11 @@ export const Profile: React.FC<ProfileProps> = ({ user, onUpdate, themeColor }) 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label htmlFor="firstName" className="block text-sm font-medium text-slate-700 dark:text-slate-300">First Name</label>
-                            <input type="text" name="firstName" id="firstName" value={formData.firstName} onChange={handleChange} required className={`input-field mt-1 focus:ring-${themeColor}-500 focus:border-${themeColor}-500`}/>
+                            <input type="text" name="firstName" id="firstName" value={formData.firstName} onChange={handleChange} required className={inputClasses}/>
                         </div>
                         <div>
                             <label htmlFor="lastName" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Last Name</label>
-                            <input type="text" name="lastName" id="lastName" value={formData.lastName} onChange={handleChange} required className={`input-field mt-1 focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} />
+                            <input type="text" name="lastName" id="lastName" value={formData.lastName} onChange={handleChange} required className={inputClasses} />
                         </div>
                     </div>
 
@@ -86,7 +90,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, onUpdate, themeColor }) 
 
                     <div>
                         <label htmlFor="phone" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Phone Number (Optional)</label>
-                        <input type="tel" name="phone" id="phone" value={formData.phone} onChange={handleChange} className={`input-field mt-1 focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} />
+                        <input type="tel" name="phone" id="phone" value={formData.phone} onChange={handleChange} className={inputClasses} />
                     </div>
 
                     <div>
@@ -94,7 +98,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, onUpdate, themeColor }) 
                         <div className="mt-2 flex items-center space-x-4">
                             {themeOptions.map(option => (
                                 <label key={option.value} className="flex items-center space-x-2 cursor-pointer">
-                                    <input type="radio" name="themeColor" value={option.value} checked={formData.themeColor === option.value} onChange={handleChange} className={`form-radio h-4 w-4 text-${option.value}-600 focus:ring-${option.value}-500`} />
+                                    <input type="radio" name="themeColor" value={option.value} checked={formData.themeColor === option.value} onChange={handleChange} className={`form-radio h-4 w-4 ${THEME_CONFIG[option.value].formRadio} ${THEME_CONFIG[option.value].focusRing500}`} />
                                     <span className="flex items-center space-x-1">
                                         <span className={`h-4 w-4 rounded-full ${option.color}`}></span>
                                         <span>{option.name}</span>
@@ -106,7 +110,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, onUpdate, themeColor }) 
 
                     <div className="flex items-center justify-end space-x-4">
                         {message && <span className="text-sm text-green-600 dark:text-green-400">{message}</span>}
-                        <button type="submit" disabled={isSaving} className={`py-2 px-6 rounded-md text-white font-semibold transition-colors disabled:opacity-50 bg-${themeColor}-600 hover:bg-${themeColor}-700`}>
+                        <button type="submit" disabled={isSaving} className={`py-2 px-6 rounded-md text-white font-semibold transition-colors disabled:opacity-50 ${theme.bg600} ${theme.hoverBg700}`}>
                             {isSaving ? 'Saving...' : 'Save Changes'}
                         </button>
                     </div>

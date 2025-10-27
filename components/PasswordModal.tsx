@@ -1,5 +1,6 @@
 import React, { useState, FormEvent } from 'react';
 import type { ThemeColor } from '../types';
+import { THEME_CONFIG } from '../constants';
 
 interface PasswordModalProps {
     fileName: string;
@@ -10,6 +11,7 @@ interface PasswordModalProps {
 
 export const PasswordModal: React.FC<PasswordModalProps> = ({ fileName, onSubmit, onClose, themeColor }) => {
     const [password, setPassword] = useState('');
+    const theme = THEME_CONFIG[themeColor];
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -26,7 +28,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({ fileName, onSubmit
                     </button>
                 </div>
                 <p className="mb-4 text-slate-600 dark:text-slate-300">
-                    The file <span className={`font-semibold text-${themeColor}-500`}>{fileName}</span> is password-protected. Please enter the password to proceed.
+                    The file <span className={`font-semibold ${theme.text500}`}>{fileName}</span> is password-protected. Please enter the password to proceed.
                 </p>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
@@ -37,7 +39,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({ fileName, onSubmit
                             name="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className={`w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-${themeColor}-500 focus:border-${themeColor}-500`}
+                            className={`w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none ${theme.focusRing500} ${theme.focusBorder500}`}
                             placeholder="Enter PDF password"
                             autoFocus
                         />
@@ -46,7 +48,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({ fileName, onSubmit
                         <button type="button" onClick={onClose} className="py-2 px-4 rounded-md bg-slate-200 hover:bg-slate-300 dark:bg-slate-600 dark:hover:bg-slate-500 text-slate-800 dark:text-slate-100 font-semibold transition-colors">
                             Cancel
                         </button>
-                        <button type="submit" className={`py-2 px-4 rounded-md bg-${themeColor}-600 hover:bg-${themeColor}-700 text-white font-semibold transition-colors`}>
+                        <button type="submit" className={`py-2 px-4 rounded-md ${theme.bg600} ${theme.hoverBg700} text-white font-semibold transition-colors`}>
                             Submit
                         </button>
                     </div>

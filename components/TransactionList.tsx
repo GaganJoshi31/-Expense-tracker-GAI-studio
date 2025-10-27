@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import type { Transaction, Category, ThemeColor } from '../types';
-import { getCategoryColor } from '../constants';
+import { getCategoryColor, THEME_CONFIG } from '../constants';
 
 interface TransactionListProps {
     transactions: Transaction[];
@@ -24,6 +24,7 @@ const EditRow: React.FC<{
     themeColor: ThemeColor;
 }> = ({ transaction, onSave, onCancel, allCategories, themeColor }) => {
     const [editFormData, setEditFormData] = useState<Transaction>({ ...transaction });
+    const theme = THEME_CONFIG[themeColor];
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -42,15 +43,17 @@ const EditRow: React.FC<{
             onSave(editFormData);
         }
     };
+    
+    const inputClasses = `input-field-sm ${theme.focusRing500} ${theme.focusBorder500}`;
 
     return (
         <tr className="bg-slate-50 dark:bg-slate-700/50">
             <td className="px-6 py-2 whitespace-nowrap">{new Date(transaction.date).toLocaleDateString('en-GB')}</td>
-            <td className="px-6 py-2"><input type="text" name="description" value={editFormData.description} onChange={handleInputChange} className={`input-field-sm focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} /></td>
-            <td className="px-6 py-2"><input type="number" name="debit" value={editFormData.debit ?? ''} onChange={handleInputChange} className={`input-field-sm text-right focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} placeholder="0.00"/></td>
-            <td className="px-6 py-2"><input type="number" name="credit" value={editFormData.credit ?? ''} onChange={handleInputChange} className={`input-field-sm text-right focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} placeholder="0.00"/></td>
+            <td className="px-6 py-2"><input type="text" name="description" value={editFormData.description} onChange={handleInputChange} className={inputClasses} /></td>
+            <td className="px-6 py-2"><input type="number" name="debit" value={editFormData.debit ?? ''} onChange={handleInputChange} className={`${inputClasses} text-right`} placeholder="0.00"/></td>
+            <td className="px-6 py-2"><input type="number" name="credit" value={editFormData.credit ?? ''} onChange={handleInputChange} className={`${inputClasses} text-right`} placeholder="0.00"/></td>
             <td className="px-6 py-2">
-                <select name="category" value={editFormData.category} onChange={handleInputChange} className={`input-field-sm focus:ring-${themeColor}-500 focus:border-${themeColor}-500`}>
+                <select name="category" value={editFormData.category} onChange={handleInputChange} className={inputClasses}>
                     {allCategories.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
             </td>

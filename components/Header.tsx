@@ -1,6 +1,7 @@
 import React from 'react';
 import { ThemeToggle } from './ThemeToggle';
 import type { ThemeColor } from '../types';
+import { THEME_CONFIG } from '../constants';
 
 type View = 'dashboard' | 'analysis' | 'tax' | 'admin' | 'profile';
 type ThemeMode = 'light' | 'dark';
@@ -17,11 +18,12 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onReset, currentView, onNavigate, onLogout, isAdmin, themeMode, toggleTheme, themeColor }) => {
+    const theme = THEME_CONFIG[themeColor];
     
     const navButtonClasses = (view: View) => 
         `px-4 py-2 rounded-md font-semibold transition-colors ${
             currentView === view 
-            ? `bg-${themeColor}-500 text-white` 
+            ? `${theme.bg500} text-white` 
             : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
         }`;
 
@@ -29,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({ onReset, currentView, onNavigate
         <header className="bg-white dark:bg-slate-800 shadow-md sticky top-0 z-40">
             <div className="container mx-auto p-4 flex justify-between items-center">
                 <div className="flex items-center space-x-2">
-                     <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 text-${themeColor}-500`} viewBox="0 0 20 20" fill="currentColor">
+                     <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 ${theme.text500}`} viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h12v4a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 6a2 2 0 00-2 2v2a2 2 0 002 2h12a2 2 0 002-2v-2a2 2 0 00-2-2H4z" clipRule="evenodd" />
                     </svg>
                     <h1 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100">

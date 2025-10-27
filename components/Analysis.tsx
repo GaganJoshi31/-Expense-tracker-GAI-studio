@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import type { Transaction, TimeFilter, Category, ThemeColor } from '../types';
-import { getCategoryColor, getCategoryHexColor } from '../constants';
+import { getCategoryColor, getCategoryHexColor, THEME_CONFIG } from '../constants';
 
 declare const Chart: any;
 declare const jspdf: any;
@@ -47,6 +47,7 @@ export const Analysis: React.FC<AnalysisProps> = ({ transactions, themeColor, th
 
     const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
     const [isPdfDownloading, setIsPdfDownloading] = useState(false);
+    const theme = THEME_CONFIG[themeColor];
 
     const filteredTransactions = useMemo(() => {
         // FIX: Restructure to use an else block for more robust type inference.
@@ -229,7 +230,7 @@ export const Analysis: React.FC<AnalysisProps> = ({ transactions, themeColor, th
                                 onClick={() => setTimeFilter(value)}
                                 className={`px-3 py-1 text-sm font-semibold rounded-md transition-colors ${
                                     timeFilter === value
-                                        ? `bg-${themeColor}-500 text-white shadow`
+                                        ? `${theme.bg500} text-white shadow`
                                         : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                                 }`}
                             >
@@ -255,7 +256,7 @@ export const Analysis: React.FC<AnalysisProps> = ({ transactions, themeColor, th
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="p-4 bg-white dark:bg-slate-800 rounded-lg shadow"><p className="text-sm text-slate-500 dark:text-slate-400">Total Expenses</p><p className="text-2xl font-semibold text-red-500">{formatCurrency(summary.expenses)}</p></div>
                     <div className="p-4 bg-white dark:bg-slate-800 rounded-lg shadow"><p className="text-sm text-slate-500 dark:text-slate-400">Avg. Monthly Expense</p><p className="text-2xl font-semibold text-orange-500">{formatCurrency(summary.avgMonthlyExpense)}</p></div>
-                    <div className="p-4 bg-white dark:bg-slate-800 rounded-lg shadow"><p className="text-sm text-slate-500 dark:text-slate-400">Top Spending Category</p><p className={`text-2xl font-semibold text-${themeColor}-500 truncate`}>{summary.topCategory}</p></div>
+                    <div className="p-4 bg-white dark:bg-slate-800 rounded-lg shadow"><p className={`text-sm text-slate-500 dark:text-slate-400`}>Top Spending Category</p><p className={`text-2xl font-semibold ${theme.text500} truncate`}>{summary.topCategory}</p></div>
                     <div className="p-4 bg-white dark:bg-slate-800 rounded-lg shadow"><p className="text-sm text-slate-500 dark:text-slate-400">Savings Rate</p><p className={`text-2xl font-semibold ${summary.savingsRate >= 0 ? 'text-green-500' : 'text-yellow-500'}`}>{summary.savingsRate.toFixed(1)}%</p></div>
                 </div>
 

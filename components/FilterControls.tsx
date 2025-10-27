@@ -1,5 +1,6 @@
 import React from 'react';
 import type { TimeFilter, Category, ThemeColor } from '../types';
+import { THEME_CONFIG } from '../constants';
 
 interface FilterControlsProps {
     activeFilter: TimeFilter;
@@ -29,6 +30,8 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
     searchText, onSearchChange, categoryFilter, onCategoryFilterChange,
     typeFilter, onTypeFilterChange, allCategories, themeColor
 }) => {
+    const theme = THEME_CONFIG[themeColor];
+
     return (
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4 mb-4 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
@@ -45,7 +48,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
                             value={searchText}
                             onChange={(e) => onSearchChange(e.target.value)}
                             placeholder="Search by description..."
-                            className={`w-full pl-10 pr-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-${themeColor}-500 focus:border-${themeColor}-500`}
+                            className={`w-full pl-10 pr-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none ${theme.focusRing500} ${theme.focusBorder500}`}
                         />
                     </div>
                 </div>
@@ -57,7 +60,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
                         id="category-filter"
                         value={categoryFilter}
                         onChange={(e) => onCategoryFilterChange(e.target.value as Category | 'all')}
-                        className={`w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-${themeColor}-500 focus:border-${themeColor}-500`}
+                        className={`w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none ${theme.focusRing500} ${theme.focusBorder500}`}
                     >
                         <option value="all">All Categories</option>
                         {allCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
@@ -71,7 +74,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
                         id="type-filter"
                         value={typeFilter}
                         onChange={(e) => onTypeFilterChange(e.target.value as 'all' | 'income' | 'expense')}
-                        className={`w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-${themeColor}-500 focus:border-${themeColor}-500`}
+                        className={`w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none ${theme.focusRing500} ${theme.focusBorder500}`}
                     >
                         <option value="all">All Types</option>
                         <option value="income">Income</option>
@@ -90,7 +93,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
                                 onClick={() => onFilterChange(value)}
                                 className={`px-3 py-1 text-sm font-semibold rounded-md transition-colors ${
                                     activeFilter === value
-                                        ? `bg-${themeColor}-500 text-white shadow`
+                                        ? `${theme.bg500} text-white shadow`
                                         : 'text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600'
                                 }`}
                             >
@@ -102,7 +105,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
                 <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
                     <button
                         onClick={onDownload}
-                        className={`w-full sm:w-auto flex items-center justify-center space-x-2 bg-${themeColor}-500 hover:bg-${themeColor}-600 text-white font-bold py-2 px-4 rounded-lg transition-colors`}
+                        className={`w-full sm:w-auto flex items-center justify-center space-x-2 ${theme.bg500} ${theme.hoverBg600} text-white font-bold py-2 px-4 rounded-lg transition-colors`}
                         title="Download filtered transactions as CSV"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

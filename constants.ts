@@ -12,29 +12,58 @@ export const DEFAULT_CATEGORIES: Category[] = [
     'Other Expense'
 ];
 
-export const THEME_COLORS: Record<ThemeColor, { main: string, hover: string, focus: string, text: string }> = {
+export const THEME_CONFIG: Record<ThemeColor, Record<string, string>> = {
     teal: {
-        main: 'bg-teal-600',
-        hover: 'hover:bg-teal-700',
-        focus: 'focus:ring-teal-500',
-        text: 'text-teal-500',
+        bg50: 'bg-teal-50',
+        bg500: 'bg-teal-500',
+        bg600: 'bg-teal-600',
+        hoverBg600: 'hover:bg-teal-600',
+        hoverBg700: 'hover:bg-teal-700',
+        text400: 'text-teal-400',
+        darkText400: 'dark:text-teal-400',
+        text500: 'text-teal-500',
+        text600: 'text-teal-600',
+        border500: 'border-teal-500',
+        hoverBorder400: 'hover:border-teal-400',
+        focusRing500: 'focus:ring-teal-500',
+        focusBorder500: 'focus:border-teal-500',
+        formRadio: 'text-teal-600',
+        formCheckbox: 'text-teal-600',
     },
     indigo: {
-        main: 'bg-indigo-600',
-        hover: 'hover:bg-indigo-700',
-        focus: 'focus:ring-indigo-500',
-        text: 'text-indigo-500',
+        bg50: 'bg-indigo-50',
+        bg500: 'bg-indigo-500',
+        bg600: 'bg-indigo-600',
+        hoverBg600: 'hover:bg-indigo-600',
+        hoverBg700: 'hover:bg-indigo-700',
+        text400: 'text-indigo-400',
+        darkText400: 'dark:text-indigo-400',
+        text500: 'text-indigo-500',
+        text600: 'text-indigo-600',
+        border500: 'border-indigo-500',
+        hoverBorder400: 'hover:border-indigo-400',
+        focusRing500: 'focus:ring-indigo-500',
+        focusBorder500: 'focus:border-indigo-500',
+        formRadio: 'text-indigo-600',
+        formCheckbox: 'text-indigo-600',
     },
     rose: {
-        main: 'bg-rose-600',
-        hover: 'hover:bg-rose-700',
-        focus: 'focus:ring-rose-500',
-        text: 'text-rose-500',
+        bg50: 'bg-rose-50',
+        bg500: 'bg-rose-500',
+        bg600: 'bg-rose-600',
+        hoverBg600: 'hover:bg-rose-600',
+        hoverBg700: 'hover:bg-rose-700',
+        text400: 'text-rose-400',
+        darkText400: 'dark:text-rose-400',
+        text500: 'text-rose-500',
+        text600: 'text-rose-600',
+        border500: 'border-rose-500',
+        hoverBorder400: 'hover:border-rose-400',
+        focusRing500: 'focus:ring-rose-500',
+        focusBorder500: 'focus:border-rose-500',
+        formRadio: 'text-rose-600',
+        formCheckbox: 'text-rose-600',
     }
-};
-
-export const getThemeColor = (theme: ThemeColor, element: 'main' | 'hover' | 'focus' | 'text'): string => {
-    return THEME_COLORS[theme][element];
 };
 
 

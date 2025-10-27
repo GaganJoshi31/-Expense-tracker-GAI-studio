@@ -1,6 +1,7 @@
 import React, { useState, FormEvent } from 'react';
 import * as authService from '../services/authService';
 import type { ThemeColor } from '../types';
+import { THEME_CONFIG } from '../constants';
 
 interface AuthProps {
     onAuthSuccess: () => void;
@@ -29,6 +30,7 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess, themeColor }) => {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
+    const theme = THEME_CONFIG[themeColor];
 
     const handleLoginSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -96,22 +98,25 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess, themeColor }) => {
         setMessage('');
         setOtpStep('enter_email');
     };
+    
+    const inputFieldClasses = `input-field ${theme.focusRing500} ${theme.focusBorder500}`;
+    const submitButtonClasses = `submit-button ${theme.bg600} ${theme.hoverBg700} ${theme.focusRing500}`;
 
     const renderLoginForm = () => (
         <>
             <div className="flex border-b border-slate-200 dark:border-slate-700">
-                <button onClick={() => setLoginMethod('password')} className={`flex-1 py-2 text-sm font-medium ${loginMethod === 'password' ? `border-b-2 border-${themeColor}-500 text-${themeColor}-600 dark:text-${themeColor}-400` : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+                <button onClick={() => setLoginMethod('password')} className={`flex-1 py-2 text-sm font-medium ${loginMethod === 'password' ? `border-b-2 ${theme.border500} ${theme.text600} ${theme.darkText400}` : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
                     Password
                 </button>
-                <button onClick={() => setLoginMethod('otp')} className={`flex-1 py-2 text-sm font-medium ${loginMethod === 'otp' ? `border-b-2 border-${themeColor}-500 text-${themeColor}-600 dark:text-${themeColor}-400` : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+                <button onClick={() => setLoginMethod('otp')} className={`flex-1 py-2 text-sm font-medium ${loginMethod === 'otp' ? `border-b-2 ${theme.border500} ${theme.text600} ${theme.darkText400}` : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
                     OTP
                 </button>
             </div>
             {loginMethod === 'password' ? (
                 <form className="mt-8 space-y-6" onSubmit={handleLoginSubmit}>
-                    <input name="email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} className={`input-field focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} placeholder="Email address"/>
-                    <input name="password" type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} className={`input-field focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} placeholder="Password"/>
-                     <button type="submit" disabled={isLoading} className={`submit-button bg-${themeColor}-600 hover:bg-${themeColor}-700 focus:ring-${themeColor}-500`}>
+                    <input name="email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} className={inputFieldClasses} placeholder="Email address"/>
+                    <input name="password" type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} className={inputFieldClasses} placeholder="Password"/>
+                     <button type="submit" disabled={isLoading} className={submitButtonClasses}>
                         {isLoading ? 'Processing...' : 'Sign in'}
                     </button>
                 </form>
@@ -119,16 +124,16 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess, themeColor }) => {
                 otpStep === 'enter_email' ? (
                     <form className="mt-8 space-y-6" onSubmit={handleOtpRequest}>
                         <p className="text-center text-sm text-slate-500">Enter your email to receive a one-time password.</p>
-                        <input name="email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} className={`input-field focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} placeholder="Email address" autoFocus/>
-                        <button type="submit" disabled={isLoading} className={`submit-button bg-${themeColor}-600 hover:bg-${themeColor}-700 focus:ring-${themeColor}-500`}>
+                        <input name="email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} className={inputFieldClasses} placeholder="Email address" autoFocus/>
+                        <button type="submit" disabled={isLoading} className={submitButtonClasses}>
                             {isLoading ? 'Sending...' : 'Send OTP'}
                         </button>
                     </form>
                 ) : (
                      <form className="mt-8 space-y-6" onSubmit={handleOtpLoginSubmit}>
                          <p className="text-center text-sm text-slate-500">An OTP has been sent to {email}.</p>
-                        <input name="otp" type="text" inputMode="numeric" required value={otp} onChange={e => setOtp(e.target.value)} className={`input-field focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} placeholder="One-Time Password" autoFocus/>
-                        <button type="submit" disabled={isLoading} className={`submit-button bg-${themeColor}-600 hover:bg-${themeColor}-700 focus:ring-${themeColor}-500`}>
+                        <input name="otp" type="text" inputMode="numeric" required value={otp} onChange={e => setOtp(e.target.value)} className={inputFieldClasses} placeholder="One-Time Password" autoFocus/>
+                        <button type="submit" disabled={isLoading} className={submitButtonClasses}>
                             {isLoading ? 'Verifying...' : 'Sign In with OTP'}
                         </button>
                         <button type="button" onClick={() => setOtpStep('enter_email')} className="text-center text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 w-full">
@@ -144,21 +149,21 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess, themeColor }) => {
          <form className="mt-8 space-y-6" onSubmit={handleSignupSubmit}>
             <div className="rounded-md shadow-sm space-y-4">
                 <div className="flex space-x-4">
-                    <input name="firstName" type="text" required value={firstName} onChange={e => setFirstName(e.target.value)} className={`input-field focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} placeholder="First Name"/>
-                    <input name="lastName" type="text" required value={lastName} onChange={e => setLastName(e.target.value)} className={`input-field focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} placeholder="Last Name"/>
+                    <input name="firstName" type="text" required value={firstName} onChange={e => setFirstName(e.target.value)} className={inputFieldClasses} placeholder="First Name"/>
+                    <input name="lastName" type="text" required value={lastName} onChange={e => setLastName(e.target.value)} className={inputFieldClasses} placeholder="Last Name"/>
                 </div>
-                <select name="gender" required value={gender} onChange={e => setGender(e.target.value)} className={`input-field focus:ring-${themeColor}-500 focus:border-${themeColor}-500`}>
+                <select name="gender" required value={gender} onChange={e => setGender(e.target.value)} className={inputFieldClasses}>
                     <option value="" disabled>Select Gender...</option>
                     <option>Male</option>
                     <option>Female</option>
                     <option>Other</option>
                     <option>Prefer not to say</option>
                 </select>
-                <input name="purpose" type="text" required value={purpose} onChange={e => setPurpose(e.target.value)} className={`input-field focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} placeholder="Purpose for using app"/>
-                <input name="email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} className={`input-field focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} placeholder="Email address"/>
-                <input name="password" type="password" autoComplete="new-password" required value={password} onChange={e => setPassword(e.target.value)} className={`input-field focus:ring-${themeColor}-500 focus:border-${themeColor}-500`} placeholder="Password"/>
+                <input name="purpose" type="text" required value={purpose} onChange={e => setPurpose(e.target.value)} className={inputFieldClasses} placeholder="Purpose for using app"/>
+                <input name="email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} className={inputFieldClasses} placeholder="Email address"/>
+                <input name="password" type="password" autoComplete="new-password" required value={password} onChange={e => setPassword(e.target.value)} className={inputFieldClasses} placeholder="Password"/>
             </div>
-            <button type="submit" disabled={isLoading} className={`submit-button bg-${themeColor}-600 hover:bg-${themeColor}-700 focus:ring-${themeColor}-500`}>
+            <button type="submit" disabled={isLoading} className={submitButtonClasses}>
                 {isLoading ? 'Processing...' : 'Sign up'}
             </button>
         </form>
@@ -229,7 +234,7 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess, themeColor }) => {
                 {view === 'login' ? renderLoginForm() : renderSignupForm()}
 
                 <div className="text-sm text-center">
-                    <button onClick={() => { setView(view === 'login' ? 'signup' : 'login'); resetForm(); }} className={`font-medium text-${themeColor}-600 hover:text-${themeColor}-500`}>
+                    <button onClick={() => { setView(view === 'login' ? 'signup' : 'login'); resetForm(); }} className={`font-medium ${theme.text600} hover:text-${themeColor}-500`}>
                         {view === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
                     </button>
                 </div>
