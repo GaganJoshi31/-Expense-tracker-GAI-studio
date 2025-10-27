@@ -94,29 +94,48 @@ const TrainingAnalysis: React.FC<{ themeColor: ThemeColor }> = ({ themeColor }) 
             manualPercentageFixed: manualPercentage.toFixed(1)
         };
     }, [rules]);
+    
+    const themeClassMap = useMemo(() => ({
+        teal: {
+            bg: 'bg-teal-500', bgLight: 'bg-teal-100', darkBg: 'dark:bg-teal-900/50',
+            text: 'text-teal-900', darkText: 'dark:text-teal-200',
+            textLight: 'text-teal-800', darkTextLight: 'dark:text-teal-300',
+        },
+        indigo: {
+            bg: 'bg-indigo-500', bgLight: 'bg-indigo-100', darkBg: 'dark:bg-indigo-900/50',
+            text: 'text-indigo-900', darkText: 'dark:text-indigo-200',
+            textLight: 'text-indigo-800', darkTextLight: 'dark:text-indigo-300',
+        },
+        rose: {
+            bg: 'bg-rose-500', bgLight: 'bg-rose-100', darkBg: 'dark:bg-rose-900/50',
+            text: 'text-rose-900', darkText: 'dark:text-rose-200',
+            textLight: 'text-rose-800', darkTextLight: 'dark:text-rose-300',
+        },
+    }), []);
 
     if (isLoading) {
         return <div className="p-6 text-center">Loading analysis data...</div>
     }
     
+    const currentTheme = themeClassMap[themeColor];
     const aiBarStyle = { width: `${stats.aiPercentage}%` };
     const manualBarStyle = { width: `${stats.manualPercentage}%` };
     const aiBarTitle = `AI: ${stats.aiPercentageFixed}%`;
     const manualBarTitle = `Manual: ${stats.manualPercentageFixed}%`;
-    const aiBarClasses = `bg-${themeColor}-500 h-6 flex items-center justify-center text-white text-sm font-semibold`;
+    const aiBarClasses = `${currentTheme.bg} h-6 flex items-center justify-center text-white text-sm font-semibold`;
     const manualBarClasses = "bg-sky-500 h-6 flex items-center justify-center text-white text-sm font-semibold";
 
     return (
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-bold mb-4">AI Training & Rule Analysis</h2>
+            <h2 className="text-xl font-bold mb-4">AI Training and Rule Analysis</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="p-4 bg-slate-100 dark:bg-slate-700 rounded-lg text-center">
                     <p className="text-sm text-slate-500">Total Rules</p>
                     <p className="text-3xl font-bold">{stats.total}</p>
                 </div>
-                <div className={`p-4 bg-${themeColor}-100 dark:bg-${themeColor}-900/50 rounded-lg text-center`}>
-                    <p className={`text-sm text-${themeColor}-800 dark:text-${themeColor}-300`}>Created by AI</p>
-                    <p className={`text-3xl font-bold text-${themeColor}-900 dark:text-${themeColor}-200`}>{stats.ai}</p>
+                <div className={`p-4 ${currentTheme.bgLight} ${currentTheme.darkBg} rounded-lg text-center`}>
+                    <p className={`text-sm ${currentTheme.textLight} ${currentTheme.darkTextLight}`}>Created by AI</p>
+                    <p className={`text-3xl font-bold ${currentTheme.text} ${currentTheme.darkText}`}>{stats.ai}</p>
                 </div>
                 <div className="p-4 bg-sky-100 dark:bg-sky-900/50 rounded-lg text-center">
                     <p className="text-sm text-sky-800 dark:text-sky-300">Created Manually</p>
@@ -143,11 +162,19 @@ const TrainingAnalysis: React.FC<{ themeColor: ThemeColor }> = ({ themeColor }) 
 
 export const Admin: React.FC<AdminProps> = ({ onAiCategorize, onManageRules, onManageCategories, themeColor }) => {
     const [activeTab, setActiveTab] = useState<AdminTab>('tools');
+    
+    const themeClassMap = useMemo(() => ({
+        teal: { tab: 'bg-teal-500', iconBg: 'bg-teal-500', button: 'bg-teal-500 hover:bg-teal-600' },
+        indigo: { tab: 'bg-indigo-500', iconBg: 'bg-indigo-500', button: 'bg-indigo-500 hover:bg-indigo-600' },
+        rose: { tab: 'bg-rose-500', iconBg: 'bg-rose-500', button: 'bg-rose-500 hover:bg-rose-600' },
+    }), []);
+
+    const currentTheme = themeClassMap[themeColor];
 
     const tabButtonClasses = (tab: AdminTab) =>
         `px-4 py-2 font-semibold rounded-md transition-colors ${
             activeTab === tab 
-            ? `bg-${themeColor}-500 text-white` 
+            ? `${currentTheme.tab} text-white` 
             : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
         }`;
 
@@ -170,14 +197,14 @@ export const Admin: React.FC<AdminProps> = ({ onAiCategorize, onManageRules, onM
                 {activeTab === 'tools' && (
                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 flex flex-col items-start">
-                            <div className={`flex-shrink-0 bg-${themeColor}-500 p-3 rounded-lg`}>
+                            <div className={`flex-shrink-0 ${currentTheme.iconBg} p-3 rounded-lg`}>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
                             </div>
                             <h2 className="text-xl font-bold mt-4">AI-Powered Categorization</h2>
                             <p className="text-slate-500 dark:text-slate-400 mt-2 mb-4 flex-grow">
                                 Review 'Other' categories and let AI suggest better ones. This also creates new rules.
                             </p>
-                            <button onClick={onAiCategorize} className={`bg-${themeColor}-500 hover:bg-${themeColor}-600 text-white font-bold py-2 px-4 rounded-lg transition-colors w-full md:w-auto`}>
+                            <button onClick={onAiCategorize} className={`${currentTheme.button} text-white font-bold py-2 px-4 rounded-lg transition-colors w-full md:w-auto`}>
                                 Start AI Review
                             </button>
                         </div>
