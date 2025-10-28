@@ -62,6 +62,8 @@ const App: React.FC = () => {
     const [themeColor, setThemeColor] = useState<ThemeColor>(currentUser?.themeColor || 'teal');
     const [fileStatuses, setFileStatuses] = useState<FileStatus[]>([]);
 
+    /*
+    // START: Temporarily disabled for debugging
     useEffect(() => {
         if (currentUser?.themeColor) setThemeColor(currentUser.themeColor);
     }, [currentUser]);
@@ -74,8 +76,6 @@ const App: React.FC = () => {
             logService.logWarning('Could not persist theme setting to localStorage.', e);
         }
     }, [themeMode]);
-
-    const toggleTheme = () => setThemeMode(prev => (prev === 'light' ? 'dark' : 'light'));
 
     const loadCategories = useCallback(async () => {
         const customCategories = await dbService.getAllCategories();
@@ -153,6 +153,18 @@ const App: React.FC = () => {
 
         setFilteredTransactions([...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     }, [transactions, activeFilter, searchText, categoryFilter, typeFilter]);
+    // END: Temporarily disabled for debugging
+    */
+    
+    // Dummy handlers to satisfy component props during simplification
+    const toggleTheme = () => setThemeMode(prev => (prev === 'light' ? 'dark' : 'light'));
+    const handleReset = () => {};
+    const handleLogout = () => {
+        logService.logInfo(`User ${currentUser?.email} logged out.`);
+        authService.logout();
+        dbService.closeDB();
+        setCurrentUser(null);
+    };
 
     const requestPassword = (file: File): Promise<string> => {
         setFileForPassword(file);
@@ -162,46 +174,11 @@ const App: React.FC = () => {
     };
     
     const processFileUploads = async (files: FileList, storageHandler: (newTransactions: Transaction[]) => Promise<void>, postUploadAction: () => Promise<void>) => {
-        setIsLoading(true);
-        setError('');
-        setStatus(`Parsing ${files.length} file(s)...`);
-        logService.logInfo(`Starting upload of ${files.length} file(s).`);
-        
-        const initialStatuses = Array.from(files).map(file => ({ name: file.name, status: 'parsing', message: 'Parsing...' } as FileStatus));
-        setFileStatuses(initialStatuses);
-        
-        try {
-            const results: ParsingResult = await parseFiles(files, requestPassword, (fileName, status, message) => {
-                setFileStatuses(prev => prev.map(fs => fs.name === fileName ? { ...fs, status, message } : fs));
-            });
-            
-            if (results.transactions.length > 0) {
-                 await storageHandler(results.transactions);
-                 setStatus(`Successfully added ${results.transactions.length} new transactions.`);
-                 logService.logInfo(`Added ${results.transactions.length} new transactions.`);
-                 await postUploadAction();
-            } else {
-                 setStatus('Processing complete. No new transactions were added.');
-            }
-            if(results.errors.length > 0){
-                setError( `Completed with ${results.errors.length} error(s). Please review file statuses.`);
-                results.errors.forEach(err => logService.logError(err.fileName, err.error));
-            }
-
-        } catch (e: any) {
-            setError(e.message);
-            logService.logError('File upload/parsing failed.', e.message);
-        } finally {
-            setIsLoading(false);
-            setTimeout(() => {
-                setStatus('');
-                setError('');
-            }, 8000);
-        }
+        // Dummy implementation for now
     };
 
-    const handleFileUpload = (files: FileList) => processFileUploads(files, dbService.addTransactions, loadTransactions);
-    const handleTaxFileUpload = (files: FileList) => processFileUploads(files, dbService.addTaxTransactions, loadTransactions);
+    const handleFileUpload = (files: FileList) => {};
+    const handleTaxFileUpload = (files: FileList) => {};
 
     const handlePasswordSubmit = (password: string) => {
         passwordPromiseControls.current?.resolve(password);
@@ -215,102 +192,15 @@ const App: React.FC = () => {
         setFileForPassword(null);
     };
     
-    const handleTransactionUpdate = async (updatedTransaction: Transaction) => {
-        try {
-            await dbService.updateTransaction(updatedTransaction);
-            setTransactions(prev => prev.map(t => t.id === updatedTransaction.id ? updatedTransaction : t));
-            logService.logInfo(`Transaction ${updatedTransaction.id} updated.`);
-        } catch (e) {
-            setError('Failed to update transaction.');
-            logService.logError('Transaction update failed.', e);
-        }
-    };
-
-    const runCategorizationRules = async () => {
-        setIsLoading(true);
-        setStatus('Re-categorizing transactions based on new rules...');
-        logService.logInfo('Starting re-categorization based on rule updates.');
-        try {
-            const allTrx = await dbService.getAllTransactions();
-            const rules = await dbService.getCustomRules();
-            const updates = allTrx.map(t => {
-                const newCategory = categorizeTransaction(t, rules);
-                if (t.category !== newCategory) {
-                    return dbService.updateTransactionCategory(t.id, newCategory);
-                }
-                return Promise.resolve(null);
-            }).filter(p => p !== null);
-
-            await Promise.all(updates);
-            logService.logInfo('Re-categorization complete.');
-        } catch (e) {
-            setError('Failed to re-categorize transactions.');
-            logService.logError('Re-categorization failed.', e);
-        } finally {
-            await loadTransactions();
-        }
-    };
-    
-    const handleCategoriesUpdate = async () => {
-        await loadCategories();
-        await runCategorizationRules();
-    };
-
-    const handleReset = async () => {
-        if (window.confirm('Are you sure you want to delete all data for this user? This action cannot be undone.')) {
-            setIsLoading(true);
-            setStatus('Deleting all data...');
-            logService.logWarning('User initiated data reset.');
-            try {
-                await dbService.clearAllData();
-                setTransactions([]);
-                setTaxTransactions([]);
-                setAllCategories(DEFAULT_CATEGORIES);
-                logService.logWarning('All user data has been deleted.');
-            } catch(e) {
-                setError('Failed to reset data.');
-                logService.logError('Data reset failed.', e);
-            } finally {
-                setIsLoading(false);
-                setStatus('');
-            }
-        }
-    };
-    
-    const generateAndDownloadCsv = (dataToExport: Transaction[], filename: string) => {
-        if (dataToExport.length === 0) return alert("No transactions to download.");
-        const csv = Papa.unparse(dataToExport, { columns: ['id', 'date', 'description', 'debit', 'credit', 'category', 'sourceFile'] });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-    };
-
-    const handleDownloadFilteredCsv = () => generateAndDownloadCsv(filteredTransactions, `transactions-filtered-${new Date().toISOString().split('T')[0]}.csv`);
-    const handleDownloadAllCsv = () => generateAndDownloadCsv(transactions, `transactions-all-${new Date().toISOString().split('T')[0]}.csv`);
+    const handleTransactionUpdate = async (updatedTransaction: Transaction) => {};
+    const runCategorizationRules = async () => {};
+    const handleCategoriesUpdate = async () => {};
+    const generateAndDownloadCsv = (dataToExport: Transaction[], filename: string) => {};
+    const handleDownloadFilteredCsv = () => {};
+    const handleDownloadAllCsv = () => {};
 
     const handleAuthSuccess = () => {
         setCurrentUser(authService.getCurrentUserDetails());
-        setView('dashboard');
-    };
-
-    const handleLogout = () => {
-        logService.logInfo(`User ${currentUser?.email} logged out.`);
-        authService.logout();
-        dbService.closeDB();
-        setCurrentUser(null);
-        setTransactions([]);
-        setFilteredTransactions([]);
-        setTaxTransactions([]);
-        setAllCategories(DEFAULT_CATEGORIES);
-        setActiveFilter('all');
-        setSearchText('');
-        setCategoryFilter('all');
-        setTypeFilter('all');
         setView('dashboard');
     };
 
@@ -323,6 +213,19 @@ const App: React.FC = () => {
         return <Auth onAuthSuccess={handleAuthSuccess} themeColor={themeColor} />;
     }
     
+    // START: Temporarily simplified render for debugging
+    return (
+        <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-200 p-8">
+            <h1 className="text-2xl font-bold">App Has Rendered</h1>
+            <p>Logged in as: {currentUser.email}</p>
+            <p>This is a simplified view to isolate a potential crash in a child component or useEffect hook.</p>
+            <button onClick={handleLogout} className="mt-4 bg-red-500 text-white font-bold py-2 px-4 rounded">Logout</button>
+        </div>
+    );
+    // END: Temporarily simplified render for debugging
+
+    /*
+    // Original Render Tree - Temporarily commented out
     return (
         <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-200 font-sans">
             <Header onReset={handleReset} currentView={view} onNavigate={setView} onLogout={handleLogout} isAdmin={currentUser.role === 'admin'} themeMode={themeMode} toggleTheme={toggleTheme} themeColor={themeColor} />
@@ -361,6 +264,7 @@ const App: React.FC = () => {
             </main>
         </div>
     );
+    */
 };
 
 export default App;
