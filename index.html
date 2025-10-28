@@ -14,27 +14,19 @@
 
     <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
     
-    <!-- Babel Standalone for in-browser TSX/React transpilation -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
-    
-    <!-- PDF.js: Required for PDF parsing -->
+    <!-- External libraries -->
     <script>
       window.pdfjsWorker = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" crossorigin="anonymous"></script>
-    
-    <!-- PapaParse: Required for CSV parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/paparse.min.js" crossorigin="anonymous"></script>
-    
-    <!-- SheetJS (XLSX): Required for Excel parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" crossorigin="anonymous"></script>
-    
-    <!-- Chart.js: For data visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous"></script>
-    
-    <!-- PDF Generation Utilities -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
+
+    <!-- Babel for in-browser transpilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
 
     <style>
       /* Fallback Error Styles */
@@ -73,10 +65,12 @@
   <script type="importmap">
 {
   "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.24.0"
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.27.0",
+    "vite": "https://aistudiocdn.com/vite@^7.1.12",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.0"
   }
 }
 </script>
@@ -103,6 +97,6 @@
       };
     </script>
     <div id="root"></div>
-    <script type="text/babel" data-type="module" data-presets="react,typescript" src="index.tsx"></script>
+    <script type="text/babel" data-type="module" src="/index.tsx"></script>
   </body>
 </html>
