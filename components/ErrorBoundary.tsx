@@ -11,10 +11,15 @@ interface State {
 }
 
 class ErrorBoundary extends Component<Props, State> {
-  // FIX: Replaced the constructor-based state initialization with a public class field. This modern syntax is more concise and resolved TypeScript errors where properties like 'state' and 'props' were not being correctly inherited from the base React.Component class.
-  state: State = {
-    hasError: false,
-  };
+  // FIX: Reverted to a constructor for state initialization. The previous use of a public class field was causing TypeScript to not correctly recognize this class as a React.Component, leading to errors where 'setState' and 'props' were not found. Using a constructor is a more robust approach that resolves these inheritance issues.
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: undefined,
+      errorInfo: undefined,
+    };
+  }
 
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
