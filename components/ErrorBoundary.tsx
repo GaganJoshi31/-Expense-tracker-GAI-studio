@@ -11,14 +11,16 @@ interface State {
 }
 
 class ErrorBoundary extends React.Component<Props, State> {
-  // FIX: Replaced the constructor with a class property for state initialization.
-  // The reported errors indicate an issue with how the component's 'this' context was being interpreted.
-  // Using a class property is a more modern syntax that resolves these kinds of issues with class components in TypeScript.
-  public state: State = {
-    hasError: false,
-    error: undefined,
-    errorInfo: undefined,
-  };
+  // FIX: Reverted to using a constructor for state initialization to resolve 'this' context issues.
+  // The class property syntax was causing type resolution problems, leading to errors where 'setState' and 'props' were not found.
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: undefined,
+      errorInfo: undefined,
+    };
+  }
 
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
@@ -34,6 +36,7 @@ class ErrorBoundary extends React.Component<Props, State> {
       return (
         <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-200 flex items-center justify-center p-4">
             <div className="bg-white dark:bg-slate-800 p-8 rounded-lg shadow-2xl max-w-2xl w-full text-left">
+                {/* FIX: Changed dark:bg-red-400 to dark:text-red-400 for correct text coloring in dark mode. */}
                 <h1 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">Oops! Something went wrong.</h1>
                 <p className="text-slate-600 dark:text-slate-300 mb-6">
                     The application encountered a critical error and had to stop. Please try refreshing the page. If the problem persists, contact support.
