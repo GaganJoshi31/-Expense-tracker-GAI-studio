@@ -1,13 +1,18 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import type { Transaction, Category } from '../types';
+import type { Transaction, Category, CategorizationSuggestion } from '../types';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+let ai: GoogleGenAI | null = null;
 
-export interface CategorizationSuggestion {
-    id: string;
-    suggestedCategory: Category;
-    reasoning: string;
-}
+const getAiClient = (): GoogleGenAI => {
+    if (!ai) {
+        if (!process.env.API_KEY) {
+            // This error will be caught by the calling function, preventing a top-level crash.
+            throw new Error("Gemini API key is not configured. Please set it up to use AI features.");
+        }
+        ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    }
+    return ai;
+};
 
 export const suggestCategories = async (
     transactions: Transaction[],
@@ -39,7 +44,8 @@ export const suggestCategories = async (
     `;
 
     try {
-        const response = await ai.models.generateContent({
+        const aiClient = getAiClient();
+        const response = await aiClient.models.generateContent({
             model: model,
             contents: prompt,
             config: {
@@ -66,6 +72,9 @@ export const suggestCategories = async (
 
     } catch (error) {
         console.error("Error calling Gemini API:", error);
-        throw new Error("Failed to get categorization suggestions from the AI. The model may be temporarily unavailable.");
+        if (error instanceof Error) {
+            throw new Error(`Failed to get categorization suggestions: ${error.message}`);
+        }
+        throw new Error("An unknown error occurred while contacting the AI model.");
     }
 };

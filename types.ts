@@ -69,3 +69,9 @@ export interface ParsingResult {
 }
 
 export type UpdateFileStatusCallback = (fileName: string, status: FileParsingStatus, message: string) => void;
+
+export interface CategorizationSuggestion {
+    id: string;
+    suggestedCategory: Category;
+    reasoning: string;
+}

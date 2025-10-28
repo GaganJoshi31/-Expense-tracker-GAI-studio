@@ -33,9 +33,9 @@ const getUsers = (): Record<string, StoredUser> => {
     if (usersData) {
         try {
             const parsedData = JSON.parse(usersData);
-            // FIX: Ensure the parsed data is a non-null object to prevent runtime errors.
-            // This handles edge cases where localStorage might contain valid JSON like "null".
-            if (parsedData && typeof parsedData === 'object') {
+            // FIX: Ensure the parsed data is a non-null object and not an array to prevent runtime errors.
+            // This handles edge cases where localStorage might contain valid JSON like "null" or an array.
+            if (parsedData && typeof parsedData === 'object' && !Array.isArray(parsedData)) {
                 return parsedData;
             }
             console.warn("User data in storage was not a valid object, resetting.", parsedData);

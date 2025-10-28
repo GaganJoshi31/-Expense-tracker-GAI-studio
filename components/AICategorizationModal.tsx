@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import type { Transaction, Category, ThemeColor } from '../types';
+// FIX: Import 'CategorizationSuggestion' from the correct source ('../types') instead of '../services/aiService'.
+import type { Transaction, Category, ThemeColor, CategorizationSuggestion } from '../types';
 import * as dbService from '../services/dbService';
-import { suggestCategories, CategorizationSuggestion } from '../services/aiService';
+import { suggestCategories } from '../services/aiService';
 import { THEME_CONFIG } from '../constants';
 
 interface AICategorizationModalProps {
