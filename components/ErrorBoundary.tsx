@@ -10,8 +10,8 @@ interface State {
   errorInfo?: ErrorInfo;
 }
 
-class ErrorBoundary extends Component<Props, State> {
-  // FIX: Reverted to a constructor for state initialization. The previous use of a public class field was causing TypeScript to not correctly recognize this class as a React.Component, leading to errors where 'setState' and 'props' were not found. Using a constructor is a more robust approach that resolves these inheritance issues.
+// FIX: Changed 'extends Component' to 'extends React.Component' to explicitly use the base class from the React namespace. This can resolve typing issues in certain environments where the destructured 'Component' might not be correctly interpreted, causing properties like 'state', 'props', and 'setState' to be unrecognized.
+class ErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
