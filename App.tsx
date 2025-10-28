@@ -165,7 +165,7 @@ const App: React.FC = () => {
     const requestPassword = (file: File): Promise<string> => {
         setFileForPassword(file);
         return new Promise<string>((resolve, reject) => {
-            passwordPromise.current = { resolve, reject };
+            passwordPromiseControls.current = { resolve, reject };
         });
     };
 
@@ -266,13 +266,13 @@ const App: React.FC = () => {
     const handleFileUpload = (files: FileList) => processFileUploads(files, dbService.addTransactions);
     const handleTaxFileUpload = (files: FileList) => processFileUploads(files, dbService.addTaxTransactions);
     const handlePasswordSubmit = (password: string) => {
-        passwordPromise.current?.resolve(password);
-        passwordPromise.current = null;
+        passwordPromiseControls.current?.resolve(password);
+        passwordPromiseControls.current = null;
         setFileForPassword(null);
     };
     const handlePasswordCancel = () => {
-        passwordPromise.current?.reject(new Error('Password prompt cancelled by user.'));
-        passwordPromise.current = null;
+        passwordPromiseControls.current?.reject(new Error('Password prompt cancelled by user.'));
+        passwordPromiseControls.current = null;
         setFileForPassword(null);
     };
     const handleTransactionUpdate = async (updatedTransaction: Transaction) => {

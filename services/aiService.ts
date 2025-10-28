@@ -5,11 +5,18 @@ let ai: GoogleGenAI | null = null;
 
 const getAiClient = (): GoogleGenAI => {
     if (!ai) {
-        if (!process.env.API_KEY) {
-            // This error will be caught by the calling function, preventing a top-level crash.
-            throw new Error("Gemini API key is not configured. Please set it up to use AI features.");
+        let apiKey: string | undefined;
+
+        // Safely check for process.env, which may not exist in a browser environment
+        if (typeof process !== 'undefined' && process.env) {
+            apiKey = process.env.API_KEY;
         }
-        ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+        if (!apiKey) {
+            // This error will be caught by the calling function, preventing a top-level crash.
+            throw new Error("Gemini API key is not configured or the 'process.env' object is not available in this environment. AI features are disabled.");
+        }
+        ai = new GoogleGenAI({ apiKey: apiKey });
     }
     return ai;
 };
