@@ -334,7 +334,7 @@ const App: React.FC = () => {
                 )}
 
                 {view === 'analysis' && (transactions.length > 0 ? <Analysis transactions={transactions} themeColor={themeColor} themeMode={themeMode} /> : <Welcome themeColor={themeColor} />)}
-                {view === 'tax' && <TaxComputation taxTransactions={taxTransactions} allCategories={allCategories} themeColor={themeColor} onUpload={handleTaxFileUpload} disabled={false} fileStatuses={fileStatuses} setFileStatuses={setFileStatuses} />}
+                {view === 'tax' && <TaxComputation taxTransactions={taxTransactions} allCategories={allCategories} themeColor={themeColor} onUpload={handleTaxFileUpload} disabled={false} fileStatuses={fileStatuses} />}
                 {view === 'admin' && currentUser.role === 'admin' && <Admin onAiCategorize={() => setIsAiModalOpen(true)} onManageRules={() => setIsRulesModalOpen(true)} onManageCategories={() => setIsCategoriesModalOpen(true)} themeColor={themeColor} />}
                 {view === 'profile' && <Profile user={currentUser} onUpdate={handleProfileUpdate} themeColor={themeColor} />}
             </main>

@@ -1,5 +1,5 @@
-
 // This worker handles all heavy file parsing in the background, keeping the UI responsive.
+// It includes a layout-aware PDF parser that is much more robust than simple text extraction.
 
 // Load external libraries needed for parsing
 importScripts(
@@ -48,7 +48,7 @@ const createTransactionId = async (t) => {
 const normalizeDate = (dateInput) => {
     if (!dateInput) return null;
     if (typeof dateInput === 'number') {
-        if (dateInput > 25569) {
+        if (dateInput > 25569) { // Excel date serial number for 1970-01-01
             const utc_days = dateInput - 25569;
             const utc_value = utc_days * 86400;
             const date_info = new Date(utc_value * 1000);
@@ -58,16 +58,19 @@ const normalizeDate = (dateInput) => {
     }
     if (typeof dateInput !== 'string') return null;
     const dateStr = dateInput.trim();
+    // Match formats like 01/01/2023, 1-1-23, 1.1.2023 etc.
     const standardDateMatch = dateStr.match(/^(?<d>\d{1,2})[./-](?<m>\d{1,2})[./-](?<y>\d{2,4})$/);
     if (standardDateMatch?.groups) {
         let { d, m, y } = standardDateMatch.groups;
         let day = parseInt(d, 10), month = parseInt(m, 10), year = parseInt(y, 10);
         if (year < 100) year += 2000;
+        // Handle ambiguous MM/DD vs DD/MM by assuming DD/MM unless month > 12
         if (month > 12 && day <= 12) [day, month] = [month, day];
         if (day > 0 && day <= 31 && month > 0 && month <= 12 && year > 1900) {
             return new Date(Date.UTC(year, month - 1, day)).toISOString().split('T')[0];
         }
     }
+    // Fallback for other formats like "Jan 1, 2023", "2023-01-01"
     const parsedDate = Date.parse(dateStr.replace(/(\d+)(st|nd|rd|th)/, '$1'));
     if (!isNaN(parsedDate)) return new Date(parsedDate).toISOString().split('T')[0];
     return null;
@@ -77,6 +80,7 @@ const normalizeAmount = (amountStr) => {
     if (amountStr === null || amountStr === undefined) return null;
     if (typeof amountStr === 'number') return Math.abs(amountStr);
     if (typeof amountStr !== 'string') return null;
+    // Remove currency symbols, commas, and trailing cr/dr identifiers
     const cleanedStr = amountStr.trim().replace(/[₹,]/g, '').replace(/\s+(cr|dr)$/i, '');
     if (cleanedStr === '' || cleanedStr === '-') return null;
     const num = parseFloat(cleanedStr);
@@ -115,6 +119,7 @@ const mapRowToTransaction = (row, headerMap) => {
         const amountStr = String(amountVal);
         const amount = normalizeAmount(amountStr);
         if (amount !== null) {
+            // If amount column is used, check for negative sign or 'dr' to determine debit
             if (amountStr.includes('-') || amountStr.toLowerCase().includes('dr')) debit = amount;
             else credit = amount;
         }
@@ -152,6 +157,7 @@ const parseCsv = async (file) => {
             complete: (results) => {
                 try {
                     if (results.errors.length) {
+                        // Ignore minor delimiter issues, but fail on critical errors.
                         const criticalError = results.errors.find(e => e.code !== 'UndetectableDelimiter');
                         if (criticalError) {
                             reject(new Error(`CSV Parsing Error: ${criticalError.message} on row ${criticalError.row}.`));
@@ -171,13 +177,18 @@ const parseCsv = async (file) => {
     });
 };
 
-
+/**
+ * Parses raw text content (from TXT or PDF) into structured transactions.
+ * This function uses heuristics to detect a header row and then parses subsequent
+ * lines based on the detected column positions. It also handles multi-line descriptions.
+ */
 const parseTextContent = (text) => {
     const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     if (lines.length < 2) return [];
     const HEADER_KEYWORDS = [{ key: 'date', aliases: ['date', 'txn date', 'value date'] }, { key: 'description', aliases: ['description', 'narration', 'particulars', 'remarks'] }, { key: 'debit', aliases: ['debit', 'withdrawal', 'dr.'] }, { key: 'credit', aliases: ['credit', 'deposit', 'cr.'] }, { key: 'balance', aliases: ['balance'] }];
     let headerRowIndex = -1;
     let columnDefs = [];
+    // Search for a header row in the first 20 lines
     for (let i = 0; i < Math.min(lines.length, 20); i++) {
         const lineLower = lines[i].toLowerCase();
         const foundCols = [];
@@ -185,49 +196,65 @@ const parseTextContent = (text) => {
             const index = lineLower.indexOf(alias);
             if (index !== -1 && !foundCols.some(c => c.key === kw.key)) foundCols.push({ key: kw.key, index });
         }));
+        // A valid header must have date, description, and at least one amount column
         if (foundCols.some(c => c.key === 'date') && foundCols.some(c => c.key === 'description') && (foundCols.some(c => c.key === 'debit') || foundCols.some(c => c.key === 'credit'))) {
             headerRowIndex = i;
             foundCols.sort((a, b) => a.index - b.index);
+            // Define column boundaries
             columnDefs = foundCols.map((col, j) => ({ key: col.key, start: col.index, end: j < foundCols.length - 1 ? foundCols[j + 1].index : lines[i].length }));
             break;
         }
     }
-    if (headerRowIndex === -1) return [];
+    if (headerRowIndex === -1) return []; // No header found
+
     const transactions = [];
     const dateCol = columnDefs.find(c => c.key === 'date');
     if (!dateCol) return [];
+
     let currentTransactionLines = [];
     const processLineBuffer = () => {
         if (currentTransactionLines.length === 0) return;
+
         const firstLine = currentTransactionLines[0];
         const otherLines = currentTransactionLines.slice(1);
         const rowData = {};
         columnDefs.forEach(col => { rowData[col.key] = firstLine.substring(col.start, col.end).trim(); });
+        
         const date = normalizeDate(rowData.date);
         const debit = normalizeAmount(rowData.debit);
         const credit = normalizeAmount(rowData.credit);
+        // Combine description from the first line with all subsequent lines in the buffer
         let description = [rowData.description || '', ...otherLines].join(' ').replace(/\s+/g, ' ').trim();
+
         if (date && description && (debit !== null || credit !== null)) {
             transactions.push({ date, description, debit, credit });
         }
         currentTransactionLines = [];
     };
+
+    // Iterate through lines after the header
     for (let i = headerRowIndex + 1; i < lines.length; i++) {
         const line = lines[i];
         const potentialDateStr = line.substring(dateCol.start, dateCol.end).trim();
+        // A new transaction line is identified if it contains a valid date in the date column
         if (normalizeDate(potentialDateStr) && line.length > dateCol.end) {
-            processLineBuffer();
+            processLineBuffer(); // Process the previous transaction's lines
             currentTransactionLines.push(line);
         } else if (currentTransactionLines.length > 0) {
+            // If it's not a new transaction line, append it to the current buffer (multi-line description)
             currentTransactionLines.push(line);
         }
     }
-    processLineBuffer();
+    processLineBuffer(); // Process the last transaction in the buffer
     return transactions;
 };
 
 const parseTxt = (file) => file.text().then(parseTextContent);
 
+// --- Advanced PDF Parsing ---
+// This system is NOT OCR. It extracts text from machine-generated PDFs.
+// It excels by analyzing the X/Y coordinates of text fragments to reconstruct
+// the original layout, correctly forming lines and spacing out columns.
 let passwordPromise = {};
 const getPassword = () => {
     self.postMessage({ type: 'password_required' });
@@ -251,40 +278,39 @@ const parsePdf = async (file) => {
 
         let fullText = '';
         for (const textContent of allTextContents) {
-            const lines = new Map();
+            const lines = new Map(); // Use a Map to group text items by their Y-coordinate
             textContent.items.forEach(item => {
-                const y = Math.round(item.transform[5]);
+                const y = Math.round(item.transform[5]); // Y-coordinate
                 if (!lines.has(y)) lines.set(y, []);
                 lines.get(y).push({
-                    x: item.transform[4],
+                    x: item.transform[4], // X-coordinate
                     str: item.str,
                     width: item.width
                 });
             });
-
+            
+            // Sort lines from top to bottom
             const sortedLines = Array.from(lines.entries()).sort((a, b) => b[0] - a[0]);
 
             const reconstructedLines = sortedLines.map(([, items]) => {
+                // Sort text items on the same line from left to right
                 const sortedItems = items.sort((a, b) => a.x - b.x);
                 if (sortedItems.length === 0) return '';
                 
                 let lineText = sortedItems[0].str;
-                const spaceWidthThreshold = 2;
-                const columnGapThreshold = 10;
+                const spaceWidthThreshold = 2; // A small gap is a single space
+                const columnGapThreshold = 10; // A large gap implies a new column
 
                 for (let j = 1; j < sortedItems.length; j++) {
                     const prevItem = sortedItems[j - 1];
                     const currentItem = sortedItems[j];
-                    
-                    const prevItemEnd = prevItem.x + prevItem.width;
-                    const gap = currentItem.x - prevItemEnd;
+                    const gap = currentItem.x - (prevItem.x + prevItem.width);
                     
                     if (gap > columnGapThreshold) {
-                        lineText += '   ';
+                        lineText += '   '; // Add multiple spaces for column separation
                     } else if (gap > spaceWidthThreshold) {
                         lineText += ' ';
                     }
-                    
                     lineText += currentItem.str;
                 }
                 return lineText;
@@ -319,7 +345,6 @@ const parsePdf = async (file) => {
 
 
 // --- Main Worker Logic ---
-
 self.onmessage = async (event) => {
     // Handle password response from the main thread
     if (event.data.type === 'password_response') {

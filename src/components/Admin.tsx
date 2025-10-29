@@ -132,7 +132,7 @@ const TrainingAnalysis: React.FC<{ themeColor: ThemeColor }> = ({ themeColor }) 
                     <div className={`${theme.bg500} h-6 flex items-center justify-center text-white text-sm font-semibold`} style={{ width: `${stats.aiPercentage}%` }} title={`AI: ${stats.aiPercentageFixed}%`}>
                        {stats.ai > 0 && <span>AI</span>}
                     </div>
-                     <div className="bg-sky-500 h-6 flex items-center justify-center text-white text-sm font-semibold`} style={{ width: `${stats.manualPercentage}%` }} title={`Manual: ${stats.manualPercentageFixed}%`}>
+                     <div className="bg-sky-500 h-6 flex items-center justify-center text-white text-sm font-semibold" style={{ width: `${stats.manualPercentage}%` }} title={`Manual: ${stats.manualPercentageFixed}%`}>
                        {stats.manual > 0 && <span>Manual</span>}
                     </div>
                 </div>

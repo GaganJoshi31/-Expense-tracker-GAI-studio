@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import type { Transaction, Category, ThemeColor, FileStatus } from '../types';
 import { FileUpload } from './FileUpload';
-import { StatusMessage } from './StatusMessage';
 import { THEME_CONFIG } from '../constants';
 
 interface TaxComputationProps {
@@ -11,7 +10,6 @@ interface TaxComputationProps {
     onUpload: (files: FileList) => Promise<void>;
     disabled: boolean;
     fileStatuses: FileStatus[];
-    setFileStatuses: React.Dispatch<React.SetStateAction<FileStatus[]>>;
 }
 
 const formatCurrency = (amount: number | null) => {
@@ -19,7 +17,8 @@ const formatCurrency = (amount: number | null) => {
     return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
-// Moved useLocalStorage hook to the top-level scope to follow the Rules of Hooks.
+// Custom hook to manage state in localStorage.
+// Moved to the top-level scope to follow the Rules of Hooks.
 const useLocalStorage = <T,>(key: string, initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] => {
     const [storedValue, setStoredValue] = useState<T>(() => {
         try {
@@ -42,7 +41,7 @@ const useLocalStorage = <T,>(key: string, initialValue: T): [T, React.Dispatch<R
     return [storedValue, setStoredValue];
 };
 
-export const TaxComputation: React.FC<TaxComputationProps> = ({ taxTransactions, allCategories, themeColor, onUpload, disabled, fileStatuses, setFileStatuses }) => {
+export const TaxComputation: React.FC<TaxComputationProps> = ({ taxTransactions, allCategories, themeColor, onUpload, disabled, fileStatuses }) => {
     const [deductibleCategories, setDeductibleCategories] = useLocalStorage<string[]>('deductibleCategories', []);
     const [annualIncome, setAnnualIncome] = useLocalStorage<number>('annualIncome', 0);
     const [status, setStatus] = useState<string>('');
